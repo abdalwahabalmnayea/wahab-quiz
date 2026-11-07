@@ -7,14 +7,14 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; background-color: #0f172a; color: white; padding: 20px; }
-        .container { background: #1e293b; max-width: 500px; margin: auto; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-        .btn { display: block; width: 100%; margin: 10px 0; padding: 14px; font-size: 18px; font-weight: bold; border: none; background: #3b82f6; color: white; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+        .container { background: #1e293b; max-width: 550px; margin: auto; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .btn { display: block; width: 100%; margin: 10px 0; padding: 14px; font-size: 17px; font-weight: bold; border: none; background: #3b82f6; color: white; border-radius: 8px; cursor: pointer; transition: 0.2s; }
         .btn:hover { background: #2563eb; }
         .correct { background-color: #22c55e !important; }
         .wrong { background-color: #ef4444 !important; }
         .hidden { display: none; }
-        .scoreboard { display: flex; justify-content: space-between; margin-bottom: 20px; background: #334155; padding: 10px 20px; border-radius: 8px; }
-        .turn-indicator { color: #f59e0b; font-weight: bold; margin-bottom: 10px; }
+        .scoreboard { display: flex; justify-content: space-between; margin-bottom: 20px; background: #334155; padding: 10px 20px; border-radius: 8px; font-size: 16px; }
+        .turn-indicator { color: #f59e0b; font-weight: bold; margin-bottom: 15px; font-size: 18px; }
     </style>
 </head>
 <body>
@@ -25,9 +25,9 @@
     <!-- شاشة اختيار الفئة -->
     <div id="category-screen">
         <h3>اختر فئة الأسئلة لبدء اللعبة:</h3>
-        <button class="btn" onclick="selectCategory('kuwait')">🇰🇼 أسئلة عن الكويت</button>
-        <button class="btn" onclick="selectCategory('geography')">🌍 أسئلة جغرافيا</button>
-        <button class="btn" onclick="selectCategory('games')">🎮 أسئلة ألعاب</button>
+        <button class="btn" onclick="selectCategory('kuwait')">🇰🇼 أسئلة عن الكويت (10 أسئلة)</button>
+        <button class="btn" onclick="selectCategory('geography')">🌍 أسئلة جغرافيا (10 أسئلة)</button>
+        <button class="btn" onclick="selectCategory('games')">🎮 أسئلة ألعاب (10 أسئلة)</button>
     </div>
 
     <!-- شاشة اللعب -->
@@ -37,14 +37,14 @@
             <div>الفريق الثاني: <span id="score2">0</span></div>
         </div>
         <div class="turn-indicator" id="turn-text">دور الفريق الأول</div>
-        <h2 id="question-text"></h2>
+        <h2 id="question-text" style="font-size: 20px; margin-bottom: 20px;"></h2>
         <div id="options-container"></div>
     </div>
 
     <!-- شاشة النتيجة النهائية -->
     <div id="result-screen" class="hidden">
         <h2>🎉 انتهت اللعبة!</h2>
-        <h1 id="winner-text"></h1>
+        <h1 id="winner-text" style="margin: 20px 0;"></h1>
         <button class="btn" onclick="resetGame()">اللعب مرة أخرى 🔄</button>
     </div>
 </div>
@@ -53,19 +53,39 @@
     const quizData = {
         kuwait: [
             { question: "ما هي عاصمة دولة الكويت؟", options: ["مدينة الكويت", "الجهراء", "حولي"], correct: 0 },
-            { question: "ما هو أطول برج في الكويت؟", options: ["أبراج الكويت", "برج الحمراء", "برج التحرير"], correct: 1 },
             { question: "في أي عام استقلت دولة الكويت؟", options: ["1961", "1971", "1950"], correct: 0 },
-            { question: "ما هو العملة الرسمية لدولة الكويت؟", options: ["الريال", "الدرهم", "الدينار"], correct: 2 }
+            { question: "ما هو أطول برج في الكويت حالياً؟", options: ["أبراج الكويت", "برج الحمراء", "برج التحرير"], correct: 1 },
+            { question: "ما هي العملة الرسمية لدولة الكويت؟", options: ["الريال", "الدرهم", "الدينار الكويتي"], correct: 2 },
+            { question: "من هو أول أمير لدولة الكويت بعد الاستقلال؟", options: ["الشيخ عبد الله السالم", "الشيخ جابر الأحمد", "الشيخ صباح الأحمد"], correct: 0 },
+            { question: "أين تقع جزيرة فيلكا بالنسبة لمدينة الكويت؟", options: ["شرق الكويت في الخليج العربي", "شمال الكويت", "جنوب الكويت"], correct: 0 },
+            { question: "ما هو اسم النادي الذي يُلقب بالعميد في كرة القدم الكويتية؟", options: ["النادي العربي", "نادي القادسية", "نادي الكويت"], correct: 2 },
+            { question: "ما هو الميناء التجاري التاريخي الشهير في الكويت؟", options: ["ميناء الشويخ", "بندر عُمان", "ميناء عبد الله"], correct: 0 },
+            { question: "ما اسم المنخفض البري الشهير في الكويت الذي يقصده الناس للبر؟", options: ["روضة بن عيثان", "بحيرة قارون", "صحراء الربع الخالي"], correct: 0 },
+            { question: "في أي عام تم افتتاح أبراج الكويت رسمياً؟", options: ["1979", "1985", "1990"], correct: 0 }
         ],
         geography: [
-            { question: "ما هو أكبر محيط في العالم؟", options: ["المحيط الأطلسي", "المحيط الهادي", "المحيط الهندي"], correct: 1 },
-            { question: "أين تقع أهرامات الجيزة؟", options: ["مصر", "السودان", "الأردن"], correct: 0 },
-            { question: "ما هي أكبر قارة في العالم من حيث المساحة؟", options: ["أفريقيا", "آسيا", "أوروبا"], correct: 1 }
+            { question: "ما هو أكبر محيط في العالم مساحةً؟", options: ["المحيط الأطلسي", "المحيط الهادي", "المحيط الهندي"], correct: 1 },
+            { question: "أين تقع أهرامات الجيزة التاريخية؟", options: ["مصر", "السودان", "الأردن"], correct: 0 },
+            { question: "ما هي أكبر قارة في العالم من حيث المساحة؟", options: ["أفريقيا", "آسيا", "أوروبا"], correct: 1 },
+            { question: "ما هي عاصمة دولة فرنسا؟", options: ["لندن", "باريس", "برلين"], correct: 1 },
+            { question: "أي نهر يعتبر أطول نهر في العالم؟", options: ["نهر النيل", "نهر الأمازون", "نهر المسيسيبي"], correct: 0 },
+            { question: "ما هي الدولة التي يمر فيها خط الاستواء وتعتبر أكبر دولة في أمريكا الجنوبية؟", options: ["البرازيل", "الأرجنتين", "تشيلي"], correct: 0 },
+            { question: "ما هي أصغر دولة في العالم من حيث المساحة؟", options: ["موناكو", "الفاتيكان", "سان مارينو"], correct: 1 },
+            { question: "في أي قارة تقع دولة اليابان؟", options: ["آسيا", "أوروبا", "أفريقيا"], correct: 0 },
+            { question: "ما هو البحر الذي يقع بين إفريقيا وأوروبا؟", options: ["البحر الأحمر", "البحر الأبيض المتوسط", "بحر العرب"], correct: 1 },
+            { question: "ما هي عاصمة دولة الإمارات العربية المتحدة؟", options: ["دبي", "أبوظبي", "الشارقة"], correct: 1 }
         ],
         games: [
-            { question: "ما اسم بطل لعبة Super Mario؟", options: ["ماريو", "لويجي", "سونيك"], correct: 0 },
-            { question: "أي شركة طورت لعبة Fortnite؟", options: ["Epic Games", "EA", "Ubisoft"], correct: 0 },
-            { question: "ما هي اللعبة الأكثر مبيعاً في التاريخ؟", options: ["GTA V", "Minecraft", "Tetris"], correct: 1 }
+            { question: "ما اسم الشخصية الرئيسية والبطل في لعبة Super Mario؟", options: ["ماريو", "لويجي", "سونيك"], correct: 0 },
+            { question: "ما هي الشركة المطورة للعبة الشهيرة Fortnite؟", options: ["Epic Games", "EA Sports", "Ubisoft"], correct: 0 },
+            { question: "ما هي اللعبة الأكثر مبيعاً في تاريخ الألعاب إلكترونياً؟", options: ["GTA V", "Minecraft", "Tetris"], correct: 1 },
+            { question: "في لعبة PUBG، كم عدد اللاعبين الذين يهبطون في الجزيرة غالباً؟", options: ["50 لاعباً", "100 لاعب", "80 لاعباً"], correct: 1 },
+            { question: "ما اسم الشخصية التي ترتدي درعاً أخضر في لعبة Halo؟", options: ["ماستر تشيف", "كرايتوس", "إيزيو"], correct: 0 },
+            { question: "أي من هذه الألعاب تعتبر لعبة بناء ومكعبات شهيرة للصغار والكبار؟", options: ["Roblox", "Minecraft", "Pac-Man"], correct: 1 },
+            { question: "ما اسم القنفذ السريع الأزرق في عالم ألعاب سيجا؟", options: ["ماريو", "سونيك", "باك مان"], correct: 1 },
+            { question: "في لعبة كرة القدم FIFA / EA Sports FC، من هو النجم الذي ظهر على غلاف النسخ الأخيرة كثيراً؟", options: ["كيليان مبابي", "ليونيل ميسي", "كريستيانو رونالدو"], correct: 0 },
+            { question: "ما هو اسم الجزيرة الافتراضية الأولى في لعبة Fortnite الفصل الأول؟", options: ["الأصليّة (Athena)", "باريس", "ميامي"], correct: 0 },
+            { question: "ما اسم البطل شبح الإسبرطة في سلسلة ألعاب God of War؟", options: ["كرايتوس (Kratos)", "سوليد سنيك", "ناثان دريك"], correct: 0 }
         ]
     };
 
@@ -96,7 +116,7 @@
             return;
         }
 
-        document.getElementById('turn-text').innerText = `دور: الفريق ${turn === 1 ? 'الأول 🔵' : 'الثاني 🔴'}`;
+        document.getElementById('turn-text').innerText = `دور: الفريق ${turn === 1 ? 'الأول 🔵' : 'الثاني 🔴'} (السؤال ${currentQ + 1} من ${questions.length})`;
         const q = questions[currentQ];
         document.getElementById('question-text').innerText = q.question;
         const container = document.getElementById('options-container');
@@ -145,7 +165,7 @@
         else winText = "🤝 تعادل الفريقان!";
 
         document.getElementById('winner-text').innerText = winText;
-        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+        confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
     }
 
     function resetGame() {
