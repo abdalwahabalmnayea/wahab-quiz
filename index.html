@@ -3,110 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لعبة أسئلة وهاب 🎯</title>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <title>لعبة المسابقات</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <style>
-        :root {
-            --primary: #4f46e5;
-            --primary-hover: #4338ca;
-            --team-red: #ef4444;
-            --team-blue: #3b82f6;
-            --bg-dark: #0f172a;
-            --card-bg: #1e293b;
-            --text-light: #f8fafc;
-            --success: #22c55e;
-            --danger: #ef4444;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
-        body { background: var(--bg-dark); color: var(--text-light); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .container { width: 100%; max-width: 700px; background: var(--card-bg); border-radius: 20px; padding: 30px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); border: 1px solid rgba(255,255,255,0.1); }
-        h1 { text-align: center; color: #f59e0b; margin-bottom: 20px; font-size: 2rem; }
-        .btn { width: 100%; padding: 14px; border: none; border-radius: 12px; font-weight: bold; font-size: 1.1rem; cursor: pointer; transition: all 0.2s; background: var(--primary); color: white; margin-top: 15px; }
-        .btn:hover { background: var(--primary-hover); transform: translateY(-2px); }
-        .input-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 8px; font-weight: 600; }
-        input[type="text"] { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: white; font-size: 1rem; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; background-color: #0f172a; color: white; padding: 20px; }
+        .container { background: #1e293b; max-width: 500px; margin: auto; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .btn { display: block; width: 100%; margin: 10px 0; padding: 14px; font-size: 18px; font-weight: bold; border: none; background: #3b82f6; color: white; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+        .btn:hover { background: #2563eb; }
+        .correct { background-color: #22c55e !important; }
+        .wrong { background-color: #ef4444 !important; }
         .hidden { display: none; }
-        .score-board { display: flex; justify-content: space-between; gap: 15px; margin-bottom: 20px; }
-        .team-card { flex: 1; padding: 15px; border-radius: 12px; text-align: center; background: #334155; transition: 0.3s; }
-        .team-card.active { ring: 4px; border: 2px solid #f59e0b; }
-        .team-red { border-top: 4px solid var(--team-red); }
-        .team-blue { border-top: 4px solid var(--team-blue); }
-        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
-        .option-btn { padding: 15px; background: #334155; color: white; border: 2px solid transparent; border-radius: 10px; font-size: 1rem; cursor: pointer; text-align: center; }
-        .option-btn.correct { background: var(--success); }
-        .option-btn.wrong { background: var(--danger); }
-        .timer { text-align: center; font-size: 1.2rem; margin: 10px 0; color: #f59e0b; font-weight: bold; }
+        .scoreboard { display: flex; justify-content: space-between; margin-bottom: 20px; background: #334155; padding: 10px 20px; border-radius: 8px; }
+        .turn-indicator { color: #f59e0b; font-weight: bold; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>🎯 لعبة أسئلة وهاب 🎯</h1>
 
-    <!-- شاشة البداية -->
-    <div id="start-screen">
-        <div class="input-group">
-            <label>اسم الفريق الأول (الأحمر):</label>
-            <input type="text" id="team1-name" value="الفريق 1">
-        </div>
-        <div class="input-group">
-            <label>اسم الفريق الثاني (الأزرق):</label>
-            <input type="text" id="team2-name" value="الفريق 2">
-        </div>
-        <button class="btn" onclick="startGame()">ابدأ التحدي الآن 🚀</button>
+    <h1>🏆 لعبة المسابقات</h1>
+
+    <!-- شاشة اختيار الفئة -->
+    <div id="category-screen">
+        <h3>اختر فئة الأسئلة لبدء اللعبة:</h3>
+        <button class="btn" onclick="selectCategory('kuwait')">🇰🇼 أسئلة عن الكويت</button>
+        <button class="btn" onclick="selectCategory('geography')">🌍 أسئلة جغرافيا</button>
+        <button class="btn" onclick="selectCategory('games')">🎮 أسئلة ألعاب</button>
     </div>
 
     <!-- شاشة اللعب -->
     <div id="quiz-screen" class="hidden">
-        <div class="score-board">
-            <div id="card-team1" class="team-card team-red">
-                <h3 id="disp-team1">الفريق 1</h3>
-                <p>النقاط: <span id="score1">0</span></p>
-            </div>
-            <div id="card-team2" class="team-card team-blue">
-                <h3 id="disp-team2">الفريق 2</h3>
-                <p>النقاط: <span id="score2">0</span></p>
-            </div>
+        <div class="scoreboard">
+            <div>الفريق الأول: <span id="score1">0</span></div>
+            <div>الفريق الثاني: <span id="score2">0</span></div>
         </div>
-
-        <div class="timer">الوقت المتبقي: <span id="time-left">30</span> ثانية</div>
-        <h2 id="question-text" style="margin-top:15px; text-align:center;">جاري تحميل السؤال...</h2>
-        <div class="options-grid" id="options-container"></div>
+        <div class="turn-indicator" id="turn-text">دور الفريق الأول</div>
+        <h2 id="question-text"></h2>
+        <div id="options-container"></div>
     </div>
 
-    <!-- شاشة النتيجة -->
-    <div id="result-screen" class="hidden" style="text-align: center;">
-        <h2 id="winner-text" style="color:#f59e0b; font-size: 2rem; margin-bottom:20px;"></h2>
-        <button class="btn" onclick="location.reload()">اللعب مرة أخرى 🔄</button>
+    <!-- شاشة النتيجة النهائية -->
+    <div id="result-screen" class="hidden">
+        <h2>🎉 انتهت اللعبة!</h2>
+        <h1 id="winner-text"></h1>
+        <button class="btn" onclick="resetGame()">اللعب مرة أخرى 🔄</button>
     </div>
 </div>
 
 <script>
-    const questions = [
-        { q: "ما هي عاصمة جمهورية مصر العربية؟", options: ["الإسكندرية", "القاهرة", "الجيزة", "أسوان"], answer: 1 },
-        { q: "ما هو أكبر كوكب في المجموعة الشمسية؟", options: ["الأرض", "المريخ", "المشتري", "زحل"], answer: 2 },
-        { q: "ما هو العنصر الكيميائي الذي رمزه 'O'؟", options: ["الذهب", "الأكسجين", "الحديد", "الهيدروجين"], answer: 1 },
-        { q: "أين تقع أهرامات الجيزة؟", options: ["المغرب", "مصر", "الأردن", "السعودية"], answer: 1 },
-        { q: "كم عدد القارات في العالم؟", options: ["5", "6", "7", "8"], answer: 2 },
-        { q: "ما هي أسرع الكائنات الحية برياً؟", options: ["الفهد", "الأسد", "الغزال", "الحصان"], answer: 0 }
-    ];
+    const quizData = {
+        kuwait: [
+            { question: "ما هي عاصمة دولة الكويت؟", options: ["مدينة الكويت", "الجهراء", "حولي"], correct: 0 },
+            { question: "ما هو أطول برج في الكويت؟", options: ["أبراج الكويت", "برج الحمراء", "برج التحرير"], correct: 1 },
+            { question: "في أي عام استقلت دولة الكويت؟", options: ["1961", "1971", "1950"], correct: 0 },
+            { question: "ما هو العملة الرسمية لدولة الكويت؟", options: ["الريال", "الدرهم", "الدينار"], correct: 2 }
+        ],
+        geography: [
+            { question: "ما هو أكبر محيط في العالم؟", options: ["المحيط الأطلسي", "المحيط الهادي", "المحيط الهندي"], correct: 1 },
+            { question: "أين تقع أهرامات الجيزة؟", options: ["مصر", "السودان", "الأردن"], correct: 0 },
+            { question: "ما هي أكبر قارة في العالم من حيث المساحة؟", options: ["أفريقيا", "آسيا", "أوروبا"], correct: 1 }
+        ],
+        games: [
+            { question: "ما اسم بطل لعبة Super Mario؟", options: ["ماريو", "لويجي", "سونيك"], correct: 0 },
+            { question: "أي شركة طورت لعبة Fortnite؟", options: ["Epic Games", "EA", "Ubisoft"], correct: 0 },
+            { question: "ما هي اللعبة الأكثر مبيعاً في التاريخ؟", options: ["GTA V", "Minecraft", "Tetris"], correct: 1 }
+        ]
+    };
 
-    let t1Name = "الفريق 1", t2Name = "الفريق 2";
-    let score1 = 0, score2 = 0;
-    let currentQ = 0, turn = 1, timer, timeLeft = 30;
+    let currentQ = 0;
+    let turn = 1;
+    let score1 = 0;
+    let score2 = 0;
+    let questions = [];
 
-    function startGame() {
-        t1Name = document.getElementById('team1-name').value || "الفريق 1";
-        t2Name = document.getElementById('team2-name').value || "الفريق 2";
+    function selectCategory(categoryKey) {
+        questions = quizData[categoryKey];
+        currentQ = 0;
+        turn = 1;
+        score1 = 0;
+        score2 = 0;
+        document.getElementById('score1').innerText = score1;
+        document.getElementById('score2').innerText = score2;
         
-        document.getElementById('disp-team1').innerText = t1Name;
-        document.getElementById('disp-team2').innerText = t2Name;
-        
-        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('category-screen').classList.add('hidden');
+        document.getElementById('result-screen').classList.add('hidden');
         document.getElementById('quiz-screen').classList.remove('hidden');
-        
         loadQuestion();
     }
 
@@ -116,47 +97,30 @@
             return;
         }
 
-        clearInterval(timer);
-        timeLeft = 30;
-        document.getElementById('time-left').innerText = timeLeft;
-        timer = setInterval(() => {
-            timeLeft--;
-            document.getElementById('time-left').innerText = timeLeft;
-            if (timeLeft <= 0) {
-                clearInterval(timer);
-                nextTurn(false);
-            }
-        }, 1000);
-
-        document.getElementById('card-team1').classList.toggle('active', turn === 1);
-        document.getElementById('card-team2').classList.toggle('active', turn === 2);
-
+        document.getElementById('turn-text').innerText = `دور: الفريق ${turn === 1 ? 'الأول 🔵' : 'الثاني 🔴'}`;
         const q = questions[currentQ];
-        document.getElementById('question-text').innerText = `[دور ${turn === 1 ? t1Name : t2Name}] \n ${q.q}`;
-        
+        document.getElementById('question-text').innerText = q.question;
         const container = document.getElementById('options-container');
         container.innerHTML = '';
-        
+
         q.options.forEach((opt, idx) => {
-            const btn = document.createElement('button');
-            btn.className = 'option-btn';
-            btn.innerText = opt;
-            btn.onclick = () => checkAnswer(idx, btn);
-            container.appendChild(btn);
+            const b = document.createElement('button');
+            b.className = 'btn';
+            b.innerText = opt;
+            b.onclick = () => checkAnswer(idx, q.correct);
+            container.appendChild(b);
         });
     }
 
-    function checkAnswer(idx, btn) {
-        clearInterval(timer);
-        const correct = questions[currentQ].answer;
-        const buttons = document.querySelectorAll('.option-btn');
+    function checkAnswer(idx, correct) {
+        const buttons = document.querySelectorAll('#options-container .btn');
         buttons.forEach(b => b.disabled = true);
 
         if (idx === correct) {
-            btn.classList.add('correct');
+            buttons[idx].classList.add('correct');
             if (turn === 1) score1 += 10; else score2 += 10;
         } else {
-            btn.classList.add('wrong');
+            buttons[idx].classList.add('wrong');
             buttons[correct].classList.add('correct');
         }
 
@@ -175,15 +139,21 @@
     function endGame() {
         document.getElementById('quiz-screen').classList.add('hidden');
         document.getElementById('result-screen').classList.remove('hidden');
-        
+
         let winText = "";
-        if (score1 > score2) winText = `🏆 الفائز هو ${t1Name}! 🎉`;
-        else if (score2 > score1) winText = `🏆 الفائز هو ${t2Name}! 🎉`;
+        if (score1 > score2) winText = "🏆 الفائز هو الفريق الأول!";
+        else if (score2 > score1) winText = "🏆 الفائز هو الفريق الثاني!";
         else winText = "🤝 تعادل الفريقان!";
 
         document.getElementById('winner-text').innerText = winText;
         confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
     }
+
+    function resetGame() {
+        document.getElementById('result-screen').classList.add('hidden');
+        document.getElementById('category-screen').classList.remove('hidden');
+    }
 </script>
+
 </body>
 </html>
